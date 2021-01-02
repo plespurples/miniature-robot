@@ -98,6 +98,8 @@ func main() {
 		for {
 			if mt, msg, err = c.ReadMessage(); err != nil {
 				log.Println("Error during reading the client message, aborting connection:", err.Error())
+				c.Close()
+				delete(server.Connections, thisID)
 				break
 			}
 
