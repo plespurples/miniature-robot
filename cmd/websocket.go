@@ -10,10 +10,11 @@ import (
 	"github.com/plespurples/miniature-robot/pkg/server"
 )
 
-// counter is a counter for new connection ids
-var counter = 0
-
 func main() {
+	// connection counter
+	counter := 0
+
+	// create new server
 	app := fiber.New()
 
 	// ensure upgrading to the websocket protocol
