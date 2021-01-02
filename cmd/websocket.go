@@ -10,7 +10,7 @@ import (
 )
 
 // SeatRequest is a structure which represents a payload from websocket
-// informing backend about one specific action (clicked or unclicked seat)
+// informing backend about one specific action (locked or unlocked seat)
 type SeatRequest struct {
 	Action string `json:"action"`
 	Seat   string `json:"seat"`
@@ -19,7 +19,7 @@ type SeatRequest struct {
 type SeatsState struct {
 	Reserved []string `json:"reserved"`
 	Busy     []string `json:"busy"`
-	Clicked  []string `json:"clicked"`
+	Locked   []string `json:"locked"`
 }
 
 func main() {
@@ -46,7 +46,7 @@ func main() {
 		cd := SeatsState{
 			Reserved: []string{"A_2_2", "A_2_3", "A_2_1", "A_2_4", "V_60", "V_61"},
 			Busy:     []string{"V_1", "V_2", "V_3", "V_4", "G_2_1", "G_2_2", "A_18_1", "A_18_2", "A_18_3", "A_18_4"},
-			Clicked:  []string{"A_10_1", "A_10_2"},
+			Locked:   []string{"A_10_1", "A_10_2"},
 		}
 
 		// marshal the data to json string
