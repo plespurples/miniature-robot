@@ -51,7 +51,7 @@ func main() {
 			Event: "startstate",
 			Data: seats.State{
 				Reserved: []string{"A_2_2", "A_2_3", "A_2_1", "A_2_4", "V_60", "V_61"},
-				Paid:     []string{"V_1", "V_2", "V_3", "V_4", "G_2_1", "G_2_2", "A_18_1", "A_18_2", "A_18_3", "A_18_4"},
+				Paid:     []string{"V_1", "V_2", "V_3", "V_4", "G_2_1", "G_2_2", "A_18_1", "A_18_2", "A_18_3", "A_18_4", "A_4_1", "A_4_2"},
 				Locked:   lockedStringList,
 			},
 		}
