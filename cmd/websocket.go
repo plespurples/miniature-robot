@@ -19,7 +19,7 @@ type SeatRequest struct {
 // SeatsState is a total state for all seats in the whole hall (in all rooms)
 type SeatsState struct {
 	Reserved []string `json:"reserved"`
-	Busy     []string `json:"busy"`
+	Paid     []string `json:"paid"`
 	Locked   []string `json:"locked"`
 }
 
@@ -65,7 +65,7 @@ func main() {
 			Event: "startstate",
 			Data: SeatsState{
 				Reserved: []string{"A_2_2", "A_2_3", "A_2_1", "A_2_4", "V_60", "V_61"},
-				Busy:     []string{"V_1", "V_2", "V_3", "V_4", "G_2_1", "G_2_2", "A_18_1", "A_18_2", "A_18_3", "A_18_4"},
+				Paid:     []string{"V_1", "V_2", "V_3", "V_4", "G_2_1", "G_2_2", "A_18_1", "A_18_2", "A_18_3", "A_18_4"},
 				Locked:   []string{"A_10_1", "A_10_2"},
 			},
 		}
