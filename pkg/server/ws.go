@@ -2,7 +2,6 @@ package server
 
 import (
 	"encoding/json"
-	"log"
 
 	"github.com/gofiber/websocket/v2"
 )
@@ -16,28 +15,23 @@ type ResponseMessage struct {
 // Connections is a map which contains all websocket connections
 var Connections = make(map[int]*websocket.Conn)
 
+// SendMessage sends message to the specified connection
+func SendMessage(c *websocket.Conn, rm ResponseMessage) {
+	msg, _ := json.Marshal(rm)
+	c.WriteMessage(1, msg)
+}
+
 // BroadcastMessage sends a message to all clients, omitting
 // the one which is specified in an omit param
 func BroadcastMessage(res ResponseMessage, omit int) {
 	// send the change (event) to all connected clients
 	for clientID, client := range Connections {
-		// omit current connection
+		// omit the specified client
 		if clientID == omit {
 			continue
 		}
 
-		// create the message string value from structure
-		dStr, err := json.Marshal(res)
-		if err != nil {
-			log.Println("Error:", err.Error())
-			continue
-		}
-
-		// send the message
-		err = client.WriteMessage(1, dStr)
-		if err != nil {
-			log.Println("Error:", err.Error())
-			continue
-		}
+		// let's send the message
+		SendMessage(client, res)
 	}
 }
