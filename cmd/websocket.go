@@ -51,6 +51,7 @@ func main() {
 	app.Get("/", websocket.New(func(c *websocket.Conn) {
 		// add this connection to the connections map
 		connections[counter] = c
+		thisID := counter
 		counter++
 
 		var (
@@ -100,7 +101,12 @@ func main() {
 			fmt.Println(sr.Seat)
 
 			// send the change (event) to all connected clients
-			for _, client := range connections {
+			for clientID, client := range connections {
+				// omit current connection
+				if clientID == thisID {
+					continue
+				}
+
 				// create the message string value from structure
 				dStr, err := json.Marshal(ResponseMessage{
 					Event: sr.Action + "ed",
@@ -119,9 +125,25 @@ func main() {
 				}
 			}
 
+			// create the message
+			dStr, err := json.Marshal(ResponseMessage{
+				Event: sr.Action + "ed for you",
+				Data:  sr.Seat,
+			})
+			if err != nil {
+				log.Println("Error:", err.Error())
+				continue
+			}
+
+			// send the message
+			err = c.WriteMessage(1, dStr)
+			if err != nil {
+				log.Println("Error:", err.Error())
+				continue
+			}
+
 			// send messages back to the client
-			smsg := []byte("Super")
-			if err = c.WriteMessage(mt, smsg); err != nil {
+			if err = c.WriteMessage(mt, dStr); err != nil {
 				log.Println("Error while sending message:", err.Error())
 				break
 			}
