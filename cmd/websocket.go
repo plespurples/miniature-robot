@@ -135,13 +135,6 @@ func main() {
 				continue
 			}
 
-			// send the message
-			err = c.WriteMessage(1, dStr)
-			if err != nil {
-				log.Println("Error:", err.Error())
-				continue
-			}
-
 			// send messages back to the client
 			if err = c.WriteMessage(mt, dStr); err != nil {
 				log.Println("Error while sending message:", err.Error())
