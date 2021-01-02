@@ -1,8 +1,6 @@
 package seats
 
 import (
-	"time"
-
 	"github.com/gofiber/websocket/v2"
 	"github.com/plespurples/miniature-robot/pkg/server"
 )
@@ -19,7 +17,7 @@ func HandleLock(c *websocket.Conn, sr Request, lockerID int) {
 	}
 
 	// lock the seat for the specified amount of time
-	Locked[sr.Seat] = time.Now().Add(120 * time.Second)
+	Locked[sr.Seat] = lockerID
 
 	// send success message to the locking client
 	server.SendMessage(c, server.ResponseMessage{

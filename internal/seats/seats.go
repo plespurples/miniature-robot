@@ -1,7 +1,5 @@
 package seats
 
-import "time"
-
 // Request is a structure which represents a payload from websocket
 // informing backend about one specific action (locked or unlocked seat)
 type Request struct {
@@ -17,4 +15,4 @@ type State struct {
 }
 
 // Locked is a array of locked seat identifiers
-var Locked = make(map[string]time.Time)
+var Locked = make(map[string]int)

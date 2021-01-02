@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"log"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/websocket/v2"
@@ -54,6 +55,33 @@ func main() {
 				Locked:   lockedStringList,
 			},
 		}
+
+		// run order timer
+		go func() {
+			time.Sleep(30 * time.Minute)
+
+			// delete the locked seats and store their ids
+			deletedSeats := []string{}
+			for id, client := range seats.Locked {
+				if client == thisID {
+					// delete the seat
+					deletedSeats = append(deletedSeats, id)
+					delete(seats.Locked, id)
+
+					// send unlocked message to all clients except this one
+					server.BroadcastMessage(server.ResponseMessage{
+						Event: "unlocked",
+						Data:  id,
+					}, thisID)
+				}
+			}
+
+			// send the informative message to frontend
+			server.SendMessage(c, server.ResponseMessage{
+				Event: "deleted",
+				Data:  deletedSeats,
+			})
+		}()
 
 		// marshal the data to json string
 		currentStateString, err := json.Marshal(cd)
