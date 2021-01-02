@@ -127,7 +127,7 @@ func main() {
 
 			// create the message
 			dStr, err := json.Marshal(ResponseMessage{
-				Event: sr.Action + "ed for you",
+				Event: sr.Action + "edForYou",
 				Data:  sr.Seat,
 			})
 			if err != nil {
