@@ -5,6 +5,18 @@ import (
 	"github.com/plespurples/miniature-robot/pkg/wssrv"
 )
 
+// GetLocked returns a list of seat identifiers which were locked
+// by locker who's id have to be specified when calling this function.
+func GetLocked(lockerID int) []string {
+	list := []string{}
+	for seat, client := range State.Locked {
+		if client == lockerID {
+			list = append(list, seat)
+		}
+	}
+	return list
+}
+
 // HandleLock locks the specified seat for lockerID and sends a message
 // to all connected clients about the new locked seat (on success).
 func HandleLock(c *websocket.Conn, sr Request, lockerID int) {

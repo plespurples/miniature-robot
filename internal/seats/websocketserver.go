@@ -11,6 +11,33 @@ import (
 	"github.com/plespurples/miniature-robot/pkg/wssrv"
 )
 
+// getStartingData gets current seat statuses on new websocket
+// connection initialization. It is returned as map of strings
+// with a slice-of-strings value type which can be immediately
+// passed to the ResponseMessage Data field.
+func getStartingData() map[string][]string {
+	lockedStringList := []string{}
+	for k := range State.Locked {
+		lockedStringList = append(lockedStringList, k)
+	}
+
+	reservedStringList := []string{}
+	for k := range State.Reserved {
+		reservedStringList = append(reservedStringList, k)
+	}
+
+	paidStringList := []string{}
+	for k := range State.Paid {
+		paidStringList = append(paidStringList, k)
+	}
+
+	return map[string][]string{
+		"reserved": reservedStringList,
+		"paid":     paidStringList,
+		"locked":   lockedStringList,
+	}
+}
+
 // RunWebsocketServer starts the websocket server which is used to handle
 // all seat clicks. It locks or unlocks the seat on click on the website
 // and prevents locking too many seats for one user (session), also it
@@ -38,81 +65,35 @@ func RunWebsocketServer() {
 		thisID := counter
 		counter++
 
-		var (
-			mt  int
-			msg []byte
-			err error
-		)
-
-		// create a slice of strings from locked seats
-		lockedStringList := []string{}
-		for k := range State.Locked {
-			lockedStringList = append(lockedStringList, k)
-		}
-
-		// create a slice of strings from reserved seats
-		reservedStringList := []string{}
-		for k := range State.Reserved {
-			reservedStringList = append(reservedStringList, k)
-		}
-
-		// create a slice of strings from paid seats
-		paidStringList := []string{}
-		for k := range State.Paid {
-			paidStringList = append(paidStringList, k)
-		}
-
 		// get current data
 		cd := wssrv.ResponseMessage{
 			Event: "startstate",
-			Data: map[string][]string{
-				"reserved": reservedStringList,
-				"paid":     paidStringList,
-				"locked":   lockedStringList,
-			},
+			Data:  getStartingData(),
 		}
 
-		// run order timer
-		go func() {
-			time.Sleep(30 * time.Minute)
-
-			// delete the locked seats and store their ids
-			deletedSeats := []string{}
-			for id, client := range State.Locked {
-				if client == thisID {
-					// delete the seat
-					deletedSeats = append(deletedSeats, id)
-					delete(State.Locked, id)
-
-					// send unlocked message to all clients except this one
-					wssrv.BroadcastMessage(wssrv.ResponseMessage{
-						Event: "unlocked",
-						Data:  id,
-					}, thisID)
-				}
-			}
-
-			// send the informative message to frontend
-			wssrv.SendMessage(c, wssrv.ResponseMessage{
-				Event: "deleted",
-				Data:  deletedSeats,
-			})
-		}()
-
-		// marshal the data to json string
-		currentStateString, err := json.Marshal(cd)
-		if err != nil {
-			log.Println("Cannot marshal the current data", cd)
-		}
-
-		// this happen when client is connected to the server
-		if err = c.WriteMessage(1, currentStateString); err != nil {
+		// marshal the data to json string and send them to client
+		currentStateString, _ := json.Marshal(cd)
+		if err := c.WriteMessage(1, currentStateString); err != nil {
 			log.Println("Error while sending message:", err.Error())
 		}
 
+		// run order creation timer, when this timer expires, all the
+		// locked places of this connection will be unlocked to other people
+		go func() {
+			time.Sleep(1 * time.Minute)
+
+			// send the informative message to frontend and unlock all seats
+			wssrv.SendMessage(c, wssrv.ResponseMessage{
+				Event: "deleted",
+				Data:  GetLocked(thisID),
+			})
+			UnlockAll(thisID)
+		}()
+
 		// this will happen on every message/connection
 		for {
-			if mt, msg, err = c.ReadMessage(); err != nil {
+			mt, msg, err := c.ReadMessage()
+			if err != nil {
 				// unlock all seats and close the connection
 				UnlockAll(thisID)
 				c.Close()
@@ -124,7 +105,7 @@ func RunWebsocketServer() {
 
 			// ok message received
 			var sr Request
-			err := json.Unmarshal(msg, &sr)
+			err = json.Unmarshal(msg, &sr)
 			if err != nil {
 				c.WriteMessage(mt, []byte("Hey, your JSON is invalid. Make it right!"))
 				continue
