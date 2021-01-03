@@ -106,9 +106,12 @@ func RunWebsocketServer() {
 		// this will happen on every message/connection
 		for {
 			if mt, msg, err = c.ReadMessage(); err != nil {
-				log.Println("Error during reading the client message, aborting connection:", err.Error())
+				// unlock all seats and close the connection
+				UnlockAll(thisID)
 				c.Close()
 				delete(wssrv.Connections, thisID)
+
+				log.Println("Aborted connection:", err.Error())
 				break
 			}
 
