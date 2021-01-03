@@ -9,7 +9,7 @@ import (
 // seat parameter. It also broadcasts a message about the unlock
 // process to all listening connections (excepting the ommited one).
 func Unlock(seat string, omit int) {
-	delete(Locked, seat)
+	delete(State.Locked, seat)
 	wssrv.BroadcastMessage(wssrv.ResponseMessage{
 		Event: "unlocked",
 		Data:  seat,
@@ -20,7 +20,7 @@ func Unlock(seat string, omit int) {
 // the Unlock function which is called for unlocking every seat, it
 // also broadcasts the message about the unlocking to all connections.
 func UnlockAll(lockerID int) {
-	for seat, lid := range Locked {
+	for seat, lid := range State.Locked {
 		if lid == lockerID {
 			Unlock(seat, lockerID)
 		}
@@ -32,7 +32,7 @@ func UnlockAll(lockerID int) {
 func HandleUnlock(c *websocket.Conn, sr Request, unlockerID int) {
 	// if the seat is locked for other person than unlockerID, send
 	// corresponding message to the client
-	if Locked[sr.Seat] != unlockerID {
+	if State.Locked[sr.Seat] != unlockerID {
 		wssrv.SendMessage(c, wssrv.ResponseMessage{
 			Event: "notYours",
 			Data:  sr.Seat,
@@ -41,7 +41,7 @@ func HandleUnlock(c *websocket.Conn, sr Request, unlockerID int) {
 	}
 
 	// if the seat is already unlocked, stop the job
-	if _, ok := Locked[sr.Seat]; !ok {
+	if _, ok := State.Locked[sr.Seat]; !ok {
 		wssrv.SendMessage(c, wssrv.ResponseMessage{
 			Event: "alreadyUnlocked",
 			Data:  sr.Seat,

@@ -4,6 +4,19 @@ import "github.com/spf13/viper"
 
 // Config represents a structure of app configuration
 type Config struct {
+	Purples struct {
+		Year string
+	}
+	Net struct {
+		Port string
+	}
+	Database struct {
+		Host     string
+		Port     string
+		User     string
+		Name     string
+		Password string
+	}
 	Security struct {
 		AuthorizationString string
 	}

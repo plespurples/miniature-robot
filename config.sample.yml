@@ -1,0 +1,19 @@
+# purples settings
+purples:
+  year: 
+
+# net settings
+net:
+  port: 
+
+# database configuration
+database:
+  host: 
+  port: 
+  name: 
+  user: 
+  password: 
+
+# security settings
+security:
+  authorizationString: 

@@ -7,6 +7,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/websocket/v2"
+	"github.com/plespurples/miniature-robot/pkg/config"
 	"github.com/plespurples/miniature-robot/pkg/wssrv"
 )
 
@@ -45,23 +46,29 @@ func RunWebsocketServer() {
 
 		// create a slice of strings from locked seats
 		lockedStringList := []string{}
-		for k := range Locked {
+		for k := range State.Locked {
 			lockedStringList = append(lockedStringList, k)
 		}
 
 		// create a slice of strings from reserved seats
 		reservedStringList := []string{}
-		for k := range Reserved {
+		for k := range State.Reserved {
 			reservedStringList = append(reservedStringList, k)
+		}
+
+		// create a slice of strings from paid seats
+		paidStringList := []string{}
+		for k := range State.Paid {
+			paidStringList = append(paidStringList, k)
 		}
 
 		// get current data
 		cd := wssrv.ResponseMessage{
 			Event: "startstate",
-			Data: State{
-				Reserved: reservedStringList,
-				Paid:     []string{"V_1", "V_2", "V_3", "V_4", "G_2_1", "G_2_2", "A_18_1", "A_18_2", "A_18_3", "A_18_4", "A_4_1", "A_4_2"},
-				Locked:   lockedStringList,
+			Data: map[string][]string{
+				"reserved": reservedStringList,
+				"paid":     paidStringList,
+				"locked":   lockedStringList,
 			},
 		}
 
@@ -71,11 +78,11 @@ func RunWebsocketServer() {
 
 			// delete the locked seats and store their ids
 			deletedSeats := []string{}
-			for id, client := range Locked {
+			for id, client := range State.Locked {
 				if client == thisID {
 					// delete the seat
 					deletedSeats = append(deletedSeats, id)
-					delete(Locked, id)
+					delete(State.Locked, id)
 
 					// send unlocked message to all clients except this one
 					wssrv.BroadcastMessage(wssrv.ResponseMessage{
@@ -136,5 +143,5 @@ func RunWebsocketServer() {
 	}))
 
 	// start listening for requests
-	log.Fatal(app.Listen(":3632"))
+	log.Fatal(app.Listen(":" + config.Data.Net.Port))
 }

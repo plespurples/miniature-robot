@@ -21,7 +21,7 @@ func HandleReserve(c *websocket.Conn, sr Request, lockerID int) {
 
 	// update the list of reserved seats
 	end := time.Now().Add(365 * 24 * time.Hour) // todo handle the end by another way
-	Reserved[sr.Seat] = &end
+	State.Reserved[sr.Seat] = &end
 
 	// send locked message to all clients
 	wssrv.BroadcastMessage(wssrv.ResponseMessage{

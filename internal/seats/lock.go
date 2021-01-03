@@ -6,9 +6,9 @@ import (
 )
 
 // HandleLock locks the specified seat for lockerID and sends a message
-// to all connected clients about the new locked seat (on success)
+// to all connected clients about the new locked seat (on success).
 func HandleLock(c *websocket.Conn, sr Request, lockerID int) {
-	if _, ok := Locked[sr.Seat]; ok {
+	if _, ok := State.Locked[sr.Seat]; ok {
 		wssrv.SendMessage(c, wssrv.ResponseMessage{
 			Event: "alreadyLocked",
 			Data:  sr.Seat,
@@ -17,7 +17,7 @@ func HandleLock(c *websocket.Conn, sr Request, lockerID int) {
 	}
 
 	// lock the seat for the specified amount of time
-	Locked[sr.Seat] = lockerID
+	State.Locked[sr.Seat] = lockerID
 
 	// send success message to the locking client
 	wssrv.SendMessage(c, wssrv.ResponseMessage{
