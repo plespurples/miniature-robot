@@ -8,7 +8,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/websocket/v2"
 	"github.com/plespurples/miniature-robot/internal/seats"
-	"github.com/plespurples/miniature-robot/pkg/server"
+	"github.com/plespurples/miniature-robot/pkg/wssrv"
 )
 
 func main() {
@@ -30,7 +30,7 @@ func main() {
 	// websocket endpoint
 	app.Get("/", websocket.New(func(c *websocket.Conn) {
 		// add this connection to the connections map
-		server.Connections[counter] = c
+		wssrv.Connections[counter] = c
 		thisID := counter
 		counter++
 
@@ -47,7 +47,7 @@ func main() {
 		}
 
 		// get current data
-		cd := server.ResponseMessage{
+		cd := wssrv.ResponseMessage{
 			Event: "startstate",
 			Data: seats.State{
 				Reserved: []string{"A_2_2", "A_2_3", "A_2_1", "A_2_4", "V_60", "V_61"},
@@ -69,7 +69,7 @@ func main() {
 					delete(seats.Locked, id)
 
 					// send unlocked message to all clients except this one
-					server.BroadcastMessage(server.ResponseMessage{
+					wssrv.BroadcastMessage(wssrv.ResponseMessage{
 						Event: "unlocked",
 						Data:  id,
 					}, thisID)
@@ -77,7 +77,7 @@ func main() {
 			}
 
 			// send the informative message to frontend
-			server.SendMessage(c, server.ResponseMessage{
+			wssrv.SendMessage(c, wssrv.ResponseMessage{
 				Event: "deleted",
 				Data:  deletedSeats,
 			})
@@ -99,7 +99,7 @@ func main() {
 			if mt, msg, err = c.ReadMessage(); err != nil {
 				log.Println("Error during reading the client message, aborting connection:", err.Error())
 				c.Close()
-				delete(server.Connections, thisID)
+				delete(wssrv.Connections, thisID)
 				break
 			}
 

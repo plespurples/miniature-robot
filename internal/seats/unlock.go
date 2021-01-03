@@ -2,7 +2,7 @@ package seats
 
 import (
 	"github.com/gofiber/websocket/v2"
-	"github.com/plespurples/miniature-robot/pkg/server"
+	"github.com/plespurples/miniature-robot/pkg/wssrv"
 )
 
 // HandleUnlock unlocks the specified seat and sends a message to all
@@ -11,7 +11,7 @@ func HandleUnlock(c *websocket.Conn, sr Request, unlockerID int) {
 	// if the seat is locked for other person than unlockerID, send
 	// corresponding message to the client
 	if Locked[sr.Seat] != unlockerID {
-		server.SendMessage(c, server.ResponseMessage{
+		wssrv.SendMessage(c, wssrv.ResponseMessage{
 			Event: "notYours",
 			Data:  sr.Seat,
 		})
@@ -20,7 +20,7 @@ func HandleUnlock(c *websocket.Conn, sr Request, unlockerID int) {
 
 	// if the seat is already unlocked, stop the job
 	if _, ok := Locked[sr.Seat]; !ok {
-		server.SendMessage(c, server.ResponseMessage{
+		wssrv.SendMessage(c, wssrv.ResponseMessage{
 			Event: "alreadyUnlocked",
 			Data:  sr.Seat,
 		})
@@ -31,13 +31,13 @@ func HandleUnlock(c *websocket.Conn, sr Request, unlockerID int) {
 	delete(Locked, sr.Seat)
 
 	// send the message
-	server.SendMessage(c, server.ResponseMessage{
+	wssrv.SendMessage(c, wssrv.ResponseMessage{
 		Event: "unlockedForYou",
 		Data:  sr.Seat,
 	})
 
 	// send locked message to all clients
-	server.BroadcastMessage(server.ResponseMessage{
+	wssrv.BroadcastMessage(wssrv.ResponseMessage{
 		Event: "unlocked",
 		Data:  sr.Seat,
 	}, unlockerID)
