@@ -5,6 +5,28 @@ import (
 	"github.com/plespurples/miniature-robot/pkg/wssrv"
 )
 
+// Unlock unlocks one particular seat which is defined by the
+// seat parameter. It also broadcasts a message about the unlock
+// process to all listening connections (excepting the ommited one).
+func Unlock(seat string, omit int) {
+	delete(Locked, seat)
+	wssrv.BroadcastMessage(wssrv.ResponseMessage{
+		Event: "unlocked",
+		Data:  seat,
+	}, omit)
+}
+
+// UnlockAll unlocks all seats that belongs to the locker ID. From
+// the Unlock function which is called for unlocking every seat, it
+// also broadcasts the message about the unlocking to all connections.
+func UnlockAll(lockerID int) {
+	for seat, lid := range Locked {
+		if lid == lockerID {
+			Unlock(seat, lockerID)
+		}
+	}
+}
+
 // HandleUnlock unlocks the specified seat and sends a message to all
 // connected clients about the new unlocked seat (on success)
 func HandleUnlock(c *websocket.Conn, sr Request, unlockerID int) {
@@ -28,17 +50,11 @@ func HandleUnlock(c *websocket.Conn, sr Request, unlockerID int) {
 	}
 
 	// unlock the seat
-	delete(Locked, sr.Seat)
+	Unlock(sr.Seat, unlockerID)
 
-	// send the message
+	// send the success message to the unlocking connection
 	wssrv.SendMessage(c, wssrv.ResponseMessage{
 		Event: "unlockedForYou",
 		Data:  sr.Seat,
 	})
-
-	// send locked message to all clients
-	wssrv.BroadcastMessage(wssrv.ResponseMessage{
-		Event: "unlocked",
-		Data:  sr.Seat,
-	}, unlockerID)
 }
