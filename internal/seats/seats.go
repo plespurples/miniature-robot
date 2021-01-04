@@ -27,11 +27,10 @@ type state struct {
 	// time. On the expiration time, it can be determined as unreserved.
 	Reserved map[string]*time.Time
 
-	// Paid is a map containing all paid seats. All seats values should
-	// be set to true. The only reason for not to have a true value is
-	// a situation, when the paid reservation was canceled by some person
-	// from inside of the purples team.
-	Paid map[string]bool
+	// Paid is a map containing all paid seats. There is no need to save
+	// other data as a value so we went with the empty struct data type
+	// which uses 0 bytes of memory.
+	Paid map[string]struct{}
 }
 
 // State is a structure containing data about all seats in the whole
@@ -41,7 +40,7 @@ type state struct {
 var State = state{
 	Locked:   make(map[string]int),
 	Reserved: make(map[string]*time.Time),
-	Paid:     make(map[string]bool),
+	Paid:     make(map[string]struct{}),
 }
 
 // Reservation is a simplified database model for getting only data
@@ -87,7 +86,7 @@ func SetCurrentStatus() {
 			}
 		} else if res.Status == "paid" {
 			for _, p := range res.Places.ActiveSeat {
-				State.Paid[p] = true
+				State.Paid[p] = struct{}{}
 			}
 		}
 	}
