@@ -1,4 +1,4 @@
-# Orders and reservations backend
+# Websocket server for seat blocking during reservation
 
 [![Go Report Card](https://goreportcard.com/badge/github.com/plespurples/miniature-robot)](https://goreportcard.com/report/github.com/plespurples/miniature-robot)
 [![Build Status](https://travis-ci.com/plespurples/miniature-robot.svg?branch=master)](https://travis-ci.com/plespurples/miniature-robot)
