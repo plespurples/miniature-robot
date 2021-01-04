@@ -38,6 +38,29 @@ func getStartingData() map[string][]string {
 	}
 }
 
+// handleMessage handles one message that is received by our websocket
+// server. It unmarshal the json message into the request struct and call
+// appropriate function depending to the specified action from the message.
+func handleMessage(msg []byte, c *websocket.Conn, id int) {
+	// ok message received
+	var sr Request
+	err := json.Unmarshal(msg, &sr)
+	if err != nil {
+		c.WriteMessage(1, []byte("Hey, your JSON is invalid. Make it right!"))
+		return
+	}
+
+	// valid json, do the job
+	switch sr.Action {
+	case "lock":
+		HandleLock(c, sr, id)
+	case "unlock":
+		HandleUnlock(c, sr, id)
+	case "reserve":
+		HandleReserve(c, sr, id)
+	}
+}
+
 // RunWebsocketServer starts the websocket server which is used to handle
 // all seat clicks. It locks or unlocks the seat on click on the website
 // and prevents locking too many seats for one user (session), also it
@@ -92,7 +115,7 @@ func RunWebsocketServer() {
 
 		// this will happen on every message/connection
 		for {
-			mt, msg, err := c.ReadMessage()
+			_, msg, err := c.ReadMessage()
 			if err != nil {
 				// unlock all seats and close the connection
 				UnlockAll(thisID)
@@ -103,23 +126,8 @@ func RunWebsocketServer() {
 				break
 			}
 
-			// ok message received
-			var sr Request
-			err = json.Unmarshal(msg, &sr)
-			if err != nil {
-				c.WriteMessage(mt, []byte("Hey, your JSON is invalid. Make it right!"))
-				continue
-			}
-
-			// valid json, do the job
-			switch sr.Action {
-			case "lock":
-				HandleLock(c, sr, thisID)
-			case "unlock":
-				HandleUnlock(c, sr, thisID)
-			case "reserve":
-				HandleReserve(c, sr, thisID)
-			}
+			// handle the message
+			handleMessage(msg, c, thisID)
 		}
 	}))
 
