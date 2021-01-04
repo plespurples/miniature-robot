@@ -44,7 +44,7 @@ var State = state{
 }
 
 // Reservation is a simplified database model for getting only data
-// neccessary for initialization and filling up the current states.
+// necessary for initialization and filling up the current states.
 type Reservation struct {
 	Status  string
 	Payment struct {

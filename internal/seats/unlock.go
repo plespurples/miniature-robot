@@ -7,7 +7,7 @@ import (
 
 // Unlock unlocks one particular seat which is defined by the
 // seat parameter. It also broadcasts a message about the unlock
-// process to all listening connections (excepting the ommited one).
+// process to all listening connections (excepting the omitted one).
 func Unlock(seat string, omit int) {
 	delete(State.Locked, seat)
 	wssrv.BroadcastMessage(wssrv.ResponseMessage{
