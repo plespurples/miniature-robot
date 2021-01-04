@@ -79,16 +79,16 @@ func RunWebsocketServer() {
 
 		// run order creation timer, when this timer expires, all the
 		// locked places of this connection will be unlocked to other people
-		go func() {
+		go func(c *websocket.Conn, id int) {
 			time.Sleep(30 * time.Minute)
 
 			// send the informative message to frontend and unlock all seats
 			wssrv.SendMessage(c, wssrv.ResponseMessage{
 				Event: "deleted",
-				Data:  GetLocked(thisID),
+				Data:  GetLocked(id),
 			})
-			UnlockAll(thisID)
-		}()
+			UnlockAll(id)
+		}(c, thisID)
 
 		// this will happen on every message/connection
 		for {
