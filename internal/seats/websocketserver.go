@@ -80,7 +80,7 @@ func RunWebsocketServer() {
 		// run order creation timer, when this timer expires, all the
 		// locked places of this connection will be unlocked to other people
 		go func() {
-			time.Sleep(1 * time.Minute)
+			time.Sleep(30 * time.Minute)
 
 			// send the informative message to frontend and unlock all seats
 			wssrv.SendMessage(c, wssrv.ResponseMessage{
