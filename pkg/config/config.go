@@ -26,11 +26,9 @@ type Config struct {
 var Data Config = Config{}
 
 // Load loads the config file and stores it in the specified variable
-func Load() error {
+func Load(filename string) error {
 	// set up config file name
-	viper.SetConfigName("config")
-	viper.SetConfigType("yml")
-	viper.AddConfigPath(".")
+	viper.SetConfigFile(filename)
 
 	// read the file
 	err := viper.ReadInConfig()

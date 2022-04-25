@@ -3,7 +3,6 @@ package seats
 import (
 	"encoding/json"
 	"log"
-	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/websocket/v2"
@@ -58,6 +57,8 @@ func handleMessage(msg []byte, c *websocket.Conn, id int) {
 		HandleUnlock(c, sr, id)
 	case "reserve":
 		HandleReserve(c, sr, id)
+	case "pay":
+		HandlePay(c, sr, id)
 	}
 }
 
@@ -102,16 +103,17 @@ func RunWebsocketServer() {
 
 		// run order creation timer, when this timer expires, all the
 		// locked places of this connection will be unlocked to other people
-		go func(c *websocket.Conn, id int) {
-			time.Sleep(30 * time.Minute)
+		// todo: implement something like this for web users
+		// go func(c *websocket.Conn, id int) {
+		// 	time.Sleep(1 * time.Minute)
 
-			// send the informative message to frontend and unlock all seats
-			wssrv.SendMessage(c, wssrv.ResponseMessage{
-				Event: "deleted",
-				Data:  GetLocked(id),
-			})
-			UnlockAll(id)
-		}(c, thisID)
+		// 	// send the informative message to frontend and unlock all seats
+		// 	wssrv.SendMessage(c, wssrv.ResponseMessage{
+		// 		Event: "deleted",
+		// 		Data:  GetLocked(id),
+		// 	})
+		// 	UnlockAll(id)
+		// }(c, thisID)
 
 		// this will happen on every message/connection
 		for {

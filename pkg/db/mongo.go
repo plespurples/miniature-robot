@@ -2,6 +2,7 @@ package db
 
 import (
 	"context"
+	"fmt"
 	"net/url"
 	"time"
 
@@ -13,28 +14,24 @@ import (
 // Client stores the mongo client for database requests
 var Client *mongo.Client = nil
 
-// MongoConnect creates the database connection
-func MongoConnect() error {
-	// try to connect to the database
+// MongoConnect creates the database connection. If it is not possible to
+// establish one, an error is returned instead.
+func MongoConnect(host string, db string, user string, pwd string) error {
+	// create background context for the connection process
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
-	options := options.Client().ApplyURI(
-		"mongodb://" +
-			config.Data.Database.User +
-			":" +
-			url.QueryEscape(config.Data.Database.Password) +
-			"@" +
-			config.Data.Database.Host +
-			":" +
-			config.Data.Database.Port +
-			"/?authSource=" +
-			config.Data.Database.Name +
-			"&connect=direct")
 
+	// compose the mongo connection string
+	options := options.Client().ApplyURI(fmt.Sprintf(
+		"mongodb+srv://%s:%s@%s/%s?retryWrites=true&w=majority", user, url.QueryEscape(pwd), host, db,
+	))
+
+	// try to connect and return the result immediately
 	c, err := mongo.Connect(ctx, options)
 	if err != nil {
 		return err
 	}
+
 	Client = c
 	return nil
 }

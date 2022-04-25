@@ -64,7 +64,7 @@ func SetCurrentStatus() {
 	defer cancel()
 
 	// get all reservations for the currently working year
-	cursor, err := db.Collection("buy").Find(ctx, bson.M{
+	cursor, err := db.Collection("orders").Find(ctx, bson.M{
 		"year": config.Data.Purples.Year,
 	})
 	if err != nil {
