@@ -3,7 +3,6 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/plespurples/miniature-robot)](https://goreportcard.com/report/github.com/plespurples/miniature-robot)
 [![Build Status](https://travis-ci.com/plespurples/miniature-robot.svg?branch=master)](https://travis-ci.com/plespurples/miniature-robot)
 [![Maintainability](https://api.codeclimate.com/v1/badges/a4bf32d7c71f084493d6/maintainability)](https://codeclimate.com/github/plespurples/miniature-robot/maintainability)
-[![Open in Visual Studio Code](https://open.vscode.dev/badges/open-in-vscode.svg)](https://open.vscode.dev/plespurples/miniature-robot)
 
 This is an another step to fully automated Purples reservation and ticket system. In front of you, you have a websocket server that deals with locking and unlocking seats during the reservation process.
 
