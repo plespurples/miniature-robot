@@ -2,3 +2,4 @@ config.yml
 config.dev.yml
 config.prod.yml
 dist
+*.DS_Store
