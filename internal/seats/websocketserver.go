@@ -59,6 +59,8 @@ func handleMessage(msg []byte, c *websocket.Conn, id int) {
 		HandleReserve(c, sr, id)
 	case "unreserve":
 		HandleUnreserve(c, sr, id)
+	case "revoke":
+		HandleRevoke(c, sr, id)
 	case "pay":
 		HandlePay(c, sr, id)
 	}
